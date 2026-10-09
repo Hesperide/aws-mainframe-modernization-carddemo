@@ -316,6 +316,12 @@
              03 INFOMSGA    PICTURE X.
            02  FILLER   PICTURE X(4).
            02  INFOMSGI  PIC X(45).
+           02  AEMPLL     COMP PIC S9(4).
+           02  AEMPLF     PIC X.
+           02  FILLER REDEFINES AEMPLF.
+             03 AEMPLA    PIC X.
+           02  FILLER     PIC X(4).
+           02  AEMPLI     PIC X.
            02  ERRMSGL    COMP  PIC  S9(4).
            02  ERRMSGF    PICTURE X.
            02  FILLER REDEFINES ERRMSGF.
@@ -643,6 +649,12 @@
            02  INFOMSGV    PICTURE X.
            02  INFOMSGO  PIC X(45).
            02  FILLER PICTURE X(3).
+           02  AEMPLC     PIC X.
+           02  AEMPLP     PIC X.
+           02  AEMPLH     PIC X.
+           02  AEMPLV     PIC X.
+           02  AEMPLO     PIC X.
+           02  FILLER     PIC X(3).
            02  ERRMSGC    PICTURE X.
            02  ERRMSGP    PICTURE X.
            02  ERRMSGH    PICTURE X.
