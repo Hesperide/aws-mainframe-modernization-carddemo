@@ -487,7 +487,11 @@
                  MOVE ACCT-OPEN-DATE      TO ADTOPENO OF CACTVWAO               
                  MOVE ACCT-EXPIRAION-DATE TO AEXPDTO  OF CACTVWAO               
                  MOVE ACCT-REISSUE-DATE   TO AREISDTO OF CACTVWAO               
-                 MOVE ACCT-GROUP-ID       TO AADDGRPO OF CACTVWAO               
+                 MOVE ACCT-GROUP-ID       TO AADDGRPO OF CACTVWAO
+                 MOVE 'N' TO AEMPLO OF CACTVWAO
+                 IF ACCT-IS-EMPLOYEE
+                     MOVE 'Y' TO AEMPLO OF CACTVWAO
+                 END-IF
               END-IF                                                            
                                                                                 
               IF FOUND-CUST-IN-MASTER                                           

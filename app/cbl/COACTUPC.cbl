@@ -429,8 +429,10 @@
                15  ACCT-UPDATE-REISSUE-DATE            PIC X(10).
                15  ACCT-UPDATE-CURR-CYC-CREDIT         PIC S9(10)V99.
                15  ACCT-UPDATE-CURR-CYC-DEBIT          PIC S9(10)V99.
+               15  ACCT-UPDATE-ADDR-ZIP                PIC X(10).
                15  ACCT-UPDATE-GROUP-ID                PIC X(10).
-               15  FILLER                              PIC X(188).
+               15  ACCT-UPDATE-EMPLOYEE-FLAG           PIC X(01).
+               15  FILLER                              PIC X(177).
           05 CUST-UPDATE-RECORD.
       *****************************************************************
       *    Data-structure for  CUSTOMER entity (RECLN 300)
@@ -706,6 +708,7 @@
                 15  ACUP-OLD-CURR-CYC-DEBIT-N          REDEFINES
                     ACUP-OLD-CURR-CYC-DEBIT            PIC S9(10)V99.
                 15  ACUP-OLD-GROUP-ID                  PIC X(10).
+                15  ACUP-OLD-EMPLOYEE-FLAG             PIC X(01).
              10 ACUP-OLD-CUST-DATA.
                 15  ACUP-OLD-CUST-ID-X                 PIC X(09).
                 15  ACUP-OLD-CUST-ID                   REDEFINES
@@ -794,6 +797,7 @@
                 15  ACUP-NEW-CURR-CYC-DEBIT-N          REDEFINES
                     ACUP-NEW-CURR-CYC-DEBIT            PIC S9(10)V99.
                 15  ACUP-NEW-GROUP-ID                  PIC X(10).
+                15  ACUP-NEW-EMPLOYEE-FLAG             PIC X(01).
              10 ACUP-NEW-CUST-DATA.
                 15  ACUP-NEW-CUST-ID-X                 PIC X(09).
                 15  ACUP-NEW-CUST-ID                   REDEFINES
@@ -1062,6 +1066,8 @@
            END-IF
 
       * Active Status
+           MOVE FUNCTION UPPER-CASE(AEMPLI OF CACTUPAI)
+             TO ACUP-NEW-EMPLOYEE-FLAG
            IF  ACSTTUSI OF CACTUPAI = '*'
            OR  ACSTTUSI OF CACTUPAI = SPACES
                MOVE LOW-VALUES           TO ACUP-NEW-ACTIVE-STATUS
@@ -1469,6 +1475,10 @@
 
            SET ACUP-CHANGES-NOT-OK       TO TRUE
 
+           IF ACUP-NEW-EMPLOYEE-FLAG NOT = 'Y' AND 'N'
+               SET INPUT-ERROR TO TRUE
+               MOVE 'Employee must be Y or N' TO WS-RETURN-MSG
+           END-IF
            MOVE 'Account Status'          TO WS-EDIT-VARIABLE-NAME
            MOVE ACUP-NEW-ACTIVE-STATUS    TO WS-EDIT-YES-NO
            PERFORM 1220-EDIT-YESNO
@@ -1686,6 +1696,7 @@
                ACUP-NEW-ACTIVE-STATUS)    =
                FUNCTION UPPER-CASE (
                ACUP-OLD-ACTIVE-STATUS)
+           AND ACUP-NEW-EMPLOYEE-FLAG = ACUP-OLD-EMPLOYEE-FLAG
            AND ACUP-NEW-CURR-BAL          = ACUP-OLD-CURR-BAL
            AND ACUP-NEW-CREDIT-LIMIT      = ACUP-OLD-CREDIT-LIMIT
            AND ACUP-NEW-CASH-CREDIT-LIMIT = ACUP-OLD-CASH-CREDIT-LIMIT
@@ -2729,6 +2740,7 @@
            .
 
        3201-SHOW-INITIAL-VALUES.
+           MOVE LOW-VALUES                     TO AEMPLO OF CACTUPAO
            MOVE LOW-VALUES                     TO  ACSTTUSO OF CACTUPAO
                                                    ACRDLIMO OF CACTUPAO
       *Account Limits
@@ -2822,6 +2834,7 @@
               MOVE ACUP-OLD-REISSUE-MON        TO RISMONO  OF CACTUPAO
               MOVE ACUP-OLD-REISSUE-DAY        TO RISDAYO  OF CACTUPAO
               MOVE ACUP-OLD-GROUP-ID           TO AADDGRPO OF CACTUPAO
+              MOVE ACUP-OLD-EMPLOYEE-FLAG TO AEMPLO OF CACTUPAO
            END-IF
 
            IF FOUND-CUST-IN-MASTER
@@ -2919,6 +2932,7 @@
            MOVE ACUP-NEW-REISSUE-MON           TO RISMONO  OF CACTUPAO
            MOVE ACUP-NEW-REISSUE-DAY           TO RISDAYO  OF CACTUPAO
            MOVE ACUP-NEW-GROUP-ID              TO AADDGRPO OF CACTUPAO
+           MOVE ACUP-NEW-EMPLOYEE-FLAG TO AEMPLO OF CACTUPAO
            MOVE ACUP-NEW-CUST-ID-X             TO ACSTNUMO OF CACTUPAO
            MOVE ACUP-NEW-CUST-SSN-1            TO ACTSSN1O OF CACTUPAO
            MOVE ACUP-NEW-CUST-SSN-2            TO ACTSSN2O OF CACTUPAO
@@ -3439,6 +3453,7 @@
            .
 
        3310-PROTECT-ALL-ATTRS.
+           MOVE DFHBMPRF TO AEMPLA OF CACTUPAI
            MOVE DFHBMPRF              TO ACCTSIDA OF CACTUPAI
                                          ACSTTUSA OF CACTUPAI
       *Account Limits
@@ -3498,6 +3513,7 @@
            .
 
        3320-UNPROTECT-FEW-ATTRS.
+           MOVE DFHBMFSE TO AEMPLA OF CACTUPAI
 
            MOVE DFHBMFSE              TO ACSTTUSA OF CACTUPAI
       *Account Limits
@@ -3845,6 +3861,10 @@
            MOVE ACCT-REISSUE-DATE(9:2)   TO ACUP-OLD-REISSUE-DAY
       * Account Group
            MOVE ACCT-GROUP-ID            TO ACUP-OLD-GROUP-ID
+           MOVE 'N' TO ACUP-OLD-EMPLOYEE-FLAG
+           IF ACCT-IS-EMPLOYEE
+               MOVE 'Y' TO ACUP-OLD-EMPLOYEE-FLAG
+           END-IF
       ******************************************************************
       *    Customer Master data
       ******************************************************************
@@ -3953,7 +3973,7 @@
       *****************************************************************
       * Prepare the update
       *****************************************************************
-           INITIALIZE ACCT-UPDATE-RECORD
+           MOVE ACCOUNT-RECORD TO ACCT-UPDATE-RECORD
       ******************************************************************
       *    Account Master data
       ******************************************************************
@@ -4000,6 +4020,8 @@
                                        INTO ACCT-UPDATE-REISSUE-DATE
       * Account Group
            MOVE ACUP-NEW-GROUP-ID        TO ACCT-UPDATE-GROUP-ID
+           MOVE ACUP-NEW-EMPLOYEE-FLAG
+             TO ACCT-UPDATE-EMPLOYEE-FLAG
 
       ******************************************************************
       *    Customer data
@@ -4138,6 +4160,9 @@
       * Account Group
            AND FUNCTION LOWER-CASE (ACCT-GROUP-ID)           EQUAL
                FUNCTION LOWER-CASE (ACUP-OLD-GROUP-ID)
+           AND (ACCT-EMPLOYEE-FLAG = ACUP-OLD-EMPLOYEE-FLAG
+             OR (ACCT-EMPLOYEE-FLAG = SPACE OR LOW-VALUES)
+                 AND ACUP-OLD-EMPLOYEE-FLAG = 'N')
                CONTINUE
            ELSE
               SET DATA-WAS-CHANGED-BEFORE-UPDATE TO TRUE

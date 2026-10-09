@@ -14,7 +14,9 @@
            05  ACCT-CURR-CYC-DEBIT               PIC S9(10)V99.
            05  ACCT-ADDR-ZIP                     PIC X(10).
            05  ACCT-GROUP-ID                     PIC X(10).
-           05  FILLER                            PIC X(178).      
+           05  ACCT-EMPLOYEE-FLAG                PIC X(01).
+               88  ACCT-IS-EMPLOYEE              VALUE 'Y'.
+           05  FILLER                            PIC X(177).
       *
       * Ver: CardDemo_v1.0-15-g27d6c6f-68 Date: 2022-07-19 23:15:59 CDT
       *
