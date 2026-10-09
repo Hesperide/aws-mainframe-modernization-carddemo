@@ -1218,7 +1218,8 @@
       *
            IF  AADDGRPI OF CACTUPAI = '*'
            OR  AADDGRPI OF CACTUPAI = SPACES
-               MOVE LOW-VALUES           TO ACUP-NEW-GROUP-ID
+           OR  AADDGRPI OF CACTUPAI = LOW-VALUES
+               MOVE SPACES               TO ACUP-NEW-GROUP-ID
            ELSE
                MOVE AADDGRPI OF CACTUPAI TO ACUP-NEW-GROUP-ID
            END-IF
